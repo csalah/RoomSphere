@@ -23,20 +23,9 @@ import HotelAdminProfilePage from './pages/hotelAdminProfilePage'
 import Staff from './pages/staff'
 
 function App() {
-  //const [users, setUsers] = useState([]);
-
-  // useEffect(() => {
-  //   axios.get("http://localhost:5000/users")
-  //     .then(response => setUsers(response.data))
-  //     .catch(error => console.error("Error fetching users:", error));
-  // }, []);
-
-  // console.log(users);
-
+  
   const [modeToggle, setModeToggle] = useState("light");
-
   return (
-
     <>
 <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
   
@@ -51,15 +40,9 @@ function App() {
 
       </Routes>
 </Router>
-
 <Toaster />
-
 </ThemeProvider>
-
-
-  
 </>
-
   )
 }
 
