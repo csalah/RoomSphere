@@ -49,9 +49,7 @@ app.get("/hotel/:email", async (req, res) => {
     .join(' ');
 
   try {
-    console.log("email: " , formattedEmail);
     const result = await pool.query("SELECT * FROM Hotel WHERE hotel_nom = $1", [formattedEmail]);
-    console.log("result: ", result);
     if (result.rows.length > 0) {
       res.json(result.rows);
     } else {
@@ -65,8 +63,6 @@ app.get("/hotel/:email", async (req, res) => {
 app.put("/hotel/update/:name", async (req, res) => {
   const { name } = req.params;  
   const { hotel_nom, category, hotel_adresse, hotel_num_tel, hotel_email, nombre_chambre } = req.body; 
-  console.log(hotel_nom); 
-
   try {
     const updateQuery = `
     UPDATE Hotel
@@ -88,7 +84,6 @@ app.put("/hotel/update/:name", async (req, res) => {
     ];
 
     const updateResult = await pool.query(updateQuery, values);
-    console.log(updateResult);
 
     if (updateResult.rows.length > 0) {
       res.json(updateResult.rows[0]);  
@@ -117,7 +112,6 @@ app.get('/staff/:nom_hotel', async (req, res) => {
       res.status(404).json({ message: `No staff found for hotel: ${nom_hotel}` });
     }
   } catch (error) {
-    console.error("Error fetching staff data: ", error);
     res.status(500).json({ error: error.message });  
   }
 });
@@ -125,20 +119,12 @@ app.get('/staff/:nom_hotel', async (req, res) => {
 
 app.post('/getHotelsWithAvailableRooms', async (req, res) => {
   const { startDate, endDate, capacity, price, size, hotelCategory, hotelChain, totalRooms } = req.body;
-
-  console.log("Received filters:", req.body);
-
   const startDateFilter = startDate === 'any' || startDate === '' ? null : startDate;
   const endDateFilter = endDate === 'any' || endDate === '' ? null : endDate;
   const hotelCategoryFilter = hotelCategory === 'any' || hotelCategory === '' ? null : hotelCategory;
   const hotelChainFilter = hotelChain === 'any' || hotelChain === '' ? null : hotelChain;
 
   const sizeFilter = size === 'any' || size === '' ? 1 : size;
-
-  console.log("Filters after conversion:", {
-    startDateFilter, endDateFilter, hotelCategoryFilter, hotelChainFilter, sizeFilter
-  });
-
   const minCapacity = capacity || 1;  
   const maxCapacity = capacity || 100;  
   const minPrice = price[0] || 0;  
@@ -205,14 +191,9 @@ app.post('/getHotelsWithAvailableRooms', async (req, res) => {
       maxTotalRooms       
     ];
 
-    console.log("Query values:", values); 
-    console.log("SQL Query:", query); 
-
     const result = await pool.query(query, values);
-    
     const hotels = result.rows;
-    console.log("rowshere:: " ,hotels.length);
-
+   
     if (hotels.length > 0) {
       res.json({ hotels });
     } else {
@@ -220,7 +201,6 @@ app.post('/getHotelsWithAvailableRooms', async (req, res) => {
     }
 
   } catch (err) {
-    console.error('Error fetching hotels:', err.message);
     res.status(500).json({ error: 'Error fetching hotels', details: err });
   }
 });
@@ -235,8 +215,6 @@ app.post('/hotel/addEmployee', async (req, res) => {
     employe_num_tel,
     role_id
   } = req.body;
-
-  console.log(employe_addresse);
 
   if (!employe_NAS || !prenom || !nom || !employe_hotel || !employe_addresse || !employe_num_tel || !role_id) {
     return res.status(400).json({ error: 'All fields are required' });
@@ -259,14 +237,12 @@ if (result.rowCount > 0) {
 }
 
   } catch (err) {
-    console.error('Error adding employee:', err);
   }
 });
 
 app.get('/reservations/:hotelid', async (req, res) => {
   const hotelId = req.params.hotelid;
-  console.log(hotelId);
-
+ 
   try {
     const result = await pool.query(
       'SELECT * FROM Reservation WHERE hotel_id = $1',
@@ -276,11 +252,9 @@ app.get('/reservations/:hotelid', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'No reservations found for this hotel' });
     }
-    console.log(result.rows);
 
     res.status(200).json(result.rows);
   } catch (error) {
-    console.error('Error fetching reservations:', error);
     res.status(500).json({ message: 'server errorr' });
   }
 });
@@ -309,7 +283,6 @@ app.post('/paiement/addPaiement', async (req, res) => {
       res.status(500).json({ error: 'Failed to insert paiement' });
     }
   } catch (err) {
-    console.error('Error adding paiement:', err);
     res.status(500).json({ error: 'pas marcher' });
   }
 });
@@ -339,7 +312,6 @@ app.put('/reservation/update-status/:reservation_id', async (req, res) => {
       res.status(404).json({ error: 'Reservation not found' });
     }
   } catch (err) {
-    console.error('Error updating reservation status:', err);
     res.status(500).json({ error: 'erreur server' });
   }
 });
@@ -377,7 +349,6 @@ app.post('/location/add', async (req, res) => {
       res.status(500).json({ error: 'Failed to insert location' });
     }
   } catch (err) {
-    console.error('Error adding location:', err);
     res.status(500).json({ error: 'server error' });
   }
 });
@@ -421,7 +392,6 @@ app.put('/chambre/edit/:chambre_num', async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Error updating chambre:', err);
     res.status(500).json({ error: 'server error' });
   }
 });
@@ -445,7 +415,6 @@ app.get('/hotel/:hotel_id/rooms', async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Error retrieving rooms:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -465,7 +434,6 @@ app.get('/location/:client_NAS', async (req, res) => {
 
     res.status(200).json({ locations: result.rows });
   } catch (err) {
-    console.error('Error durant fetching de locations:', err);
     res.status(500).json({ error: 'server error' });
   }
 });
@@ -494,7 +462,6 @@ app.post('/reservation/create', async (req, res) => {
       res.status(500).json({ error: 'Failed ' });
     }
   } catch (err) {
-    console.error('Error while creating our reservation:', err);
     res.status(500).json({ error: 'server error' });
   }
 });
@@ -517,7 +484,6 @@ app.delete('/reservation/delete/:reservation_id', async (req, res) => {
       reservation: result.rows[0],
     });
   } catch (err) {
-    console.error('failed while deleting reservation:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
